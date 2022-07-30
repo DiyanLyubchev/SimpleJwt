@@ -29,6 +29,7 @@ namespace Sample.JWT.Token.Controllers
         [HttpGet]
         public IEnumerable<string> Get()
         {
+            string authHeader = Request.Headers["Authorization"];
             return new string[] { "Sofia", "Varna" };
         }
 
@@ -52,9 +53,5 @@ namespace Sample.JWT.Token.Controllers
 
             return Ok(new TokenModel { JwtToken = token });
         }
-    }
-    public class AuthorizationVm
-    {
-        public string BearerAuth { get; set; }
     }
 }

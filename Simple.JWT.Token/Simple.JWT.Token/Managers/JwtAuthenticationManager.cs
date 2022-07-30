@@ -1,4 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using Sample.JWT.Token.Common;
 using Sample.JWT.Token.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -40,11 +41,11 @@ namespace Sample.JWT.Token.Managers
                 {
                     new Claim(ClaimTypes.Name, username)// subject authenticate
                 }),
-                Expires = DateTime.UtcNow.AddHours(1), //Expiration time tocken
+                Expires = DateTime.UtcNow.AddHours(JwtContainerModel.ExpireHoures), //Expiration time tocken
                 SigningCredentials = new SigningCredentials //provide signing credentials and how sign (with algorithms HmacSha256Signature)
                 (
                     new SymmetricSecurityKey(tokenKey),
-                    SecurityAlgorithms.HmacSha256Signature
+                    JwtContainerModel.SecurityAlgorithm
                 )
             };
 
