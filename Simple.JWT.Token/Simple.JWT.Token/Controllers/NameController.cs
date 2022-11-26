@@ -24,8 +24,10 @@ namespace Sample.JWT.Token.Controllers
             this.jwtAuthenticationManager = jwtAuthenticationManager;
         }
 
-        // GET: api/<NameController>
-        // Header = > (key) - Authorization (value) - "Bearer " + token 
+        /// <summary>
+        /// Header = > (key) - Authorization (value) - "Bearer " + token 
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public IEnumerable<string> Get()
         {
@@ -40,6 +42,11 @@ namespace Sample.JWT.Token.Controllers
             return "value";
         }
 
+        /// <summary>
+        /// "test1" "password1"
+        /// </summary>
+        /// <param name="userCred"></param>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpPost("authenticate")]
         //https://www.youtube.com/watch?v=vWkPdurauaA&ab_channel=DotNetCoreCentral
