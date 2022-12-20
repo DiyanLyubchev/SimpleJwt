@@ -31,7 +31,6 @@ namespace Sample.JWT.Token.Controllers
         [HttpGet]
         public IEnumerable<string> Get()
         {
-            string authHeader = Request.Headers["Authorization"];
             return new string[] { "Sofia", "Varna" };
         }
 
@@ -58,7 +57,7 @@ namespace Sample.JWT.Token.Controllers
             if (token == null)
                 return Unauthorized();
 
-            return Ok(new TokenModel { JwtToken = token });
+            return Ok($"Bearer {token}");
         }
     }
 }
