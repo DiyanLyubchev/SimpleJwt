@@ -10,61 +10,60 @@ using System.IO;
 using System.Reflection;
 using System;
 using System.Text;
-using DocumentFormat.OpenXml.EMMA;
 
-namespace Simple.JWT.Token.Extentions
+namespace Simple.JWT.Token.Extentions;
+
+public static class ServiceCollectionExtensions
 {
-    public static class ServiceCollectionExtensions
+    private static string key = JwtContainerModel.Key;
+
+    public static IServiceCollection ResolveJwtConfiguration(this IServiceCollection services)
     {
-        private static string key = JwtContainerModel.Key;
-
-        public static IServiceCollection ResolveJwtConfiguration(this IServiceCollection services)
+        services.AddAuthentication(x =>
         {
-            services.AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(x =>
-            {
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
-                };
-            });
-
-            return services;
-        }
-
-        public static IServiceCollection ResolveServices(this IServiceCollection services)
+            x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(x =>
         {
-            services.AddSingleton<IJwtAuthenticationManager>(new JwtAuthenticationManager(key));
-
-            return services;
-        }
-
-        public static IServiceCollection ResolveSwagger(this IServiceCollection services)
-        {
-            services.AddSwaggerGen(c =>
+            x.RequireHttpsMetadata = false;
+            x.SaveToken = true;
+            x.TokenValidationParameters = new TokenValidationParameters
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Sample.JWT.Token", Version = "v1" });
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    Description = @$"JWT Authorization header using the Bearer scheme.<br />
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
+                ValidateIssuer = false,
+                ValidateAudience = false
+            };
+        });
+
+        return services;
+    }
+
+    public static IServiceCollection ResolveServices(this IServiceCollection services)
+    {
+        services.AddSingleton<IJwtAuthenticationManager>(new JwtAuthenticationManager(key));
+
+        return services;
+    }
+
+    public static IServiceCollection ResolveSwagger(this IServiceCollection services)
+    {
+        services.AddSwaggerGen(c =>
+        {
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "Sample.JWT.Token", Version = "v1" });
+            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Description = @$"JWT Authorization header using the Bearer scheme.<br />
                                      Enter **'Bearer'** [space] and then your token in the text input below.<br />
                                      **Example: 'Bearer 12345abcdef'**",
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer"
-                });
+                Name = "Authorization",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "Bearer"
+            });
 
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
-                {
+            c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+            {
                     {
                         new OpenApiSecurityScheme
                         {
@@ -79,14 +78,13 @@ namespace Simple.JWT.Token.Extentions
                         },
                         new List<string>()
                     }
-                });
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                c.IncludeXmlComments(xmlPath);
             });
+            var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+            c.IncludeXmlComments(xmlPath);
+        });
 
-            return services;
-        }
-
+        return services;
     }
 }
+

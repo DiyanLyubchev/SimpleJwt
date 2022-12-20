@@ -2,62 +2,56 @@
 using Microsoft.AspNetCore.Mvc;
 using Sample.JWT.Token.Interfaces;
 using Sample.JWT.Token.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace Sample.JWT.Token.Controllers
+namespace Sample.JWT.Token.Controllers;
+
+[Authorize]
+[Route("api/[controller]")]
+[ApiController]
+public class NameController : ControllerBase
 {
-    [Authorize]
-    [Route("api/[controller]")]
-    [ApiController]
-    public class NameController : ControllerBase
+    private readonly IJwtAuthenticationManager jwtAuthenticationManager;
+
+    public NameController(IJwtAuthenticationManager jwtAuthenticationManager)
     {
-        private readonly IJwtAuthenticationManager jwtAuthenticationManager;
+        this.jwtAuthenticationManager = jwtAuthenticationManager;
+    }
 
-        public NameController(IJwtAuthenticationManager jwtAuthenticationManager)
-        {
-            this.jwtAuthenticationManager = jwtAuthenticationManager;
-        }
+    /// <summary>
+    /// Header = > (key) - Authorization (value) - "Bearer " + token 
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet]
+    public IEnumerable<string> Get()
+    {
+        return new string[] { "Sofia", "Varna" };
+    }
 
-        /// <summary>
-        /// Header = > (key) - Authorization (value) - "Bearer " + token 
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "Sofia", "Varna" };
-        }
+    // GET api/<NameController>/5
+    [HttpGet("{id}")]
+    public string Get(int id)
+    {
+        return "value";
+    }
 
-        // GET api/<NameController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
+    /// <summary>
+    /// "test1" "password1"
+    /// </summary>
+    /// <param name="userCred"></param>
+    /// <returns></returns>
+    [AllowAnonymous]
+    [HttpPost("authenticate")]
+    //https://www.youtube.com/watch?v=vWkPdurauaA&ab_channel=DotNetCoreCentral
+    public IActionResult Authenticate([FromBody] UserCred userCred)
+    {
+        var token = this.jwtAuthenticationManager
+            .Authenticate(userCred.Username, userCred.Password);
 
-        /// <summary>
-        /// "test1" "password1"
-        /// </summary>
-        /// <param name="userCred"></param>
-        /// <returns></returns>
-        [AllowAnonymous]
-        [HttpPost("authenticate")]
-        //https://www.youtube.com/watch?v=vWkPdurauaA&ab_channel=DotNetCoreCentral
-        public IActionResult Authenticate([FromBody] UserCred userCred)
-        {
-            var token = this.jwtAuthenticationManager
-                .Authenticate(userCred.Username, userCred.Password);
+        if (token == null)
+            return Unauthorized();
 
-            if (token == null)
-                return Unauthorized();
-
-            return Ok($"Bearer {token}");
-        }
+        return Ok($"Bearer {token}");
     }
 }
